@@ -1,6 +1,6 @@
 # Big Arrow 🏹
 
-<video src="https://github.com/callumreid/bigCursor/raw/main/bigCursor.mp4" autoplay loop muted playsinline width="100%"></video>
+![Big Arrow Demo](bigCursor.gif)
 
 **Shake your mouse cursor and watch it grow HUGE!**
 
