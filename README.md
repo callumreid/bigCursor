@@ -16,11 +16,15 @@ The longer and faster you shake, the bigger it gets — until it fills your enti
 
 1. Download `bigCursor.dmg` from the link above
 2. Open the DMG and drag **bigCursor** to your Applications folder
-3. **First time only:** Right-click the app → **Open** (this bypasses macOS security for unsigned apps)
-4. Click **Open** when prompted
-5. Grant **Accessibility** permissions when asked (System Settings → Privacy & Security → Accessibility)
+3. **Important - bypass Gatekeeper** (unsigned app):
+   ```bash
+   xattr -cr /Applications/bigCursor.app
+   ```
+4. Double-click to open, then grant **Accessibility** permissions when asked (System Settings → Privacy & Security → Accessibility)
 
 That's it! Look for the 🖱️ in your menu bar.
+
+> **Note:** If you see "damaged and can't be opened", run the `xattr -cr` command above. The app isn't damaged — macOS blocks unsigned apps downloaded from the internet.
 
 ---
 
