@@ -1,64 +1,82 @@
 # Big Arrow 🏹
 
-A macOS utility that makes your cursor grow bigger the faster and longer you shake it. Keep shaking and it'll grow until it fills your entire screen!
+**Shake your mouse cursor and watch it grow HUGE!**
 
-## Demo
+The longer and faster you shake, the bigger it gets — until it fills your entire screen. Stop shaking and it smoothly shrinks back to normal.
 
-Move your mouse rapidly/shake it around → cursor grows bigger and bigger.  
-Stop shaking → cursor shrinks back to normal.
+---
 
-The longer you keep shaking, the faster it grows!
+## Download
 
-## Installation
+**[⬇️ Download Big Arrow](../../releases/latest)** (macOS 13+)
 
-### Option 1: Build from Source (Recommended)
+### Installation
 
-Requires Xcode Command Line Tools.
+1. Download `BigArrow.dmg` from the link above
+2. Open the DMG and drag **Big Arrow** to your Applications folder
+3. **First time only:** Right-click the app → **Open** (this bypasses macOS security for unsigned apps)
+4. Click **Open** when prompted
+5. Grant **Accessibility** permissions when asked (System Settings → Privacy & Security → Accessibility)
+
+That's it! Look for the 🏹 in your menu bar.
+
+---
+
+## How to Use
+
+1. **Shake your mouse rapidly** for about 1.5 seconds
+2. Watch your cursor start growing!
+3. **Keep shaking** — it keeps growing bigger and bigger
+4. **Stop shaking** — it smoothly shrinks back to normal
+
+The faster you shake, the faster it grows. Max size fills most of your screen!
+
+---
+
+## Quit / Uninstall
+
+- **Quit:** Click the 🏹 menu bar icon → Quit
+- **Uninstall:** Drag Big Arrow from Applications to Trash
+
+---
+
+## For Developers
+
+### Build from Source
 
 ```bash
-git clone <this-repo>
-cd bigArrow
+git clone https://github.com/YOUR_USERNAME/BigArrow.git
+cd BigArrow
 swift build -c release
-```
-
-Then run:
-```bash
 .build/release/BigArrow
 ```
 
-### Option 2: Quick Run
+### Create Distributable App
 
 ```bash
-swift run
+chmod +x build-app.sh
+./build-app.sh
 ```
 
-## Usage
+This creates:
+- `Big Arrow.app` — the macOS application
+- `BigArrow.dmg` — disk image for easy sharing
 
-1. Run the app
-2. Grant Accessibility permissions when prompted (System Settings → Privacy & Security → Accessibility)
-3. A 🏹 icon appears in your menu bar
-4. Start shaking your mouse!
-5. Click the menu bar icon → Quit to exit
+---
 
-## How It Works
+## Technical Details
 
-- Tracks mouse velocity across a sliding window
-- When velocity exceeds threshold, the arrow starts growing
-- The longer you maintain high velocity, the faster it grows
-- Maximum size: 50x normal (fills most of the screen!)
-- Smoothly shrinks back when you stop
+- Tracks mouse velocity over a sliding window
+- Requires 1.5 seconds of sustained rapid movement before growth begins
+- Arrow grows up to 500x normal size
+- Works across multiple displays
+- Runs as a menu bar app (no Dock icon)
 
-## Permissions
+## Requirements
 
-Big Arrow needs **Accessibility** permissions to track your mouse globally. macOS will prompt you to grant this on first run.
-
-## Uninstall
-
-1. Quit the app from the menu bar
-2. Delete the folder
-3. Optionally remove from System Settings → Privacy & Security → Accessibility
+- macOS 13.0 (Ventura) or later
+- Accessibility permissions (for global mouse tracking)
 
 ## License
 
-MIT - Do whatever you want with it!
-
+MIT — do whatever you want with it!
