@@ -22,7 +22,7 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
     let growthRate: CGFloat = 0.15
     let shrinkRate: CGFloat = 0.92
     let minScale: CGFloat = 1.0
-    let maxScale: CGFloat = 50.0
+    let maxScale: CGFloat = 500.0
     let warmupDuration: TimeInterval = 1.5
     
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -30,8 +30,15 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
         setupOverlayWindow()
         startMouseTracking()
         startDisplayLink()
+        hideSystemCursor()
+    }
+    
+    func hideSystemCursor() {
+        CGDisplayHideCursor(CGMainDisplayID())
         
-        NSCursor.hide()
+        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+            CGDisplayHideCursor(CGMainDisplayID())
+        }
     }
     
     func setupStatusItem() {
@@ -43,8 +50,13 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
         let menu = NSMenu()
         menu.addItem(NSMenuItem(title: "Big Arrow Active", action: nil, keyEquivalent: ""))
         menu.addItem(NSMenuItem.separator())
-        menu.addItem(NSMenuItem(title: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q"))
         statusItem.menu = menu
+    }
+    
+    @objc func quitApp() {
+        CGDisplayShowCursor(CGMainDisplayID())
+        NSApplication.shared.terminate(nil)
     }
     
     func setupOverlayWindow() {
