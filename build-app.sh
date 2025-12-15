@@ -17,6 +17,9 @@ mkdir -p "$APP_NAME.app/Contents/Resources"
 
 cp .build/release/bigCursor "$APP_NAME.app/Contents/MacOS/bigCursor"
 
+echo "🔏 Ad-hoc signing app..."
+codesign --force --deep --sign - "$APP_NAME.app"
+
 cat > "$APP_NAME.app/Contents/Info.plist" << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -90,9 +93,16 @@ rm -rf "$ICON_DIR"
 echo "📀 Creating DMG..."
 
 rm -f "bigCursor.dmg"
-hdiutil create -volname "bigCursor" -srcfolder "$APP_NAME.app" -ov -format UDZO "bigCursor.dmg" 2>/dev/null || {
+DMG_TEMP="dmg_temp"
+rm -rf "$DMG_TEMP"
+mkdir -p "$DMG_TEMP"
+cp -R "$APP_NAME.app" "$DMG_TEMP/"
+ln -s /Applications "$DMG_TEMP/Applications"
+
+hdiutil create -volname "bigCursor" -srcfolder "$DMG_TEMP" -ov -format UDZO "bigCursor.dmg" 2>/dev/null || {
     echo "⚠️  DMG creation failed (that's okay, .app still works)"
 }
+rm -rf "$DMG_TEMP"
 
 echo ""
 echo "✅ Done! Created:"
