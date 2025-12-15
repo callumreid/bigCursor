@@ -84,7 +84,6 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
         overlayWindow.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
         
         arrowView = ArrowView(frame: NSRect(origin: .zero, size: allScreensFrame.size))
-        arrowView.screenOffset = allScreensFrame.origin
         overlayWindow.contentView = arrowView
         overlayWindow.setFrame(allScreensFrame, display: true)
         overlayWindow.orderFrontRegardless()
@@ -146,8 +145,10 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
         lastMouseTime = currentTime
         
         DispatchQueue.main.async { [weak self] in
-            self?.arrowView.mousePosition = currentPosition
-            self?.arrowView.needsDisplay = true
+            guard let self = self else { return }
+            let viewPoint = self.overlayWindow.convertFromScreen(NSRect(origin: currentPosition, size: .zero)).origin
+            self.arrowView.mousePosition = viewPoint
+            self.arrowView.needsDisplay = true
         }
     }
     
@@ -188,7 +189,6 @@ class ArrowView: NSView {
     var mousePosition: CGPoint = .zero
     var scale: CGFloat = 1.0
     var isVisible: Bool = false
-    var screenOffset: CGPoint = .zero
     
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
@@ -199,17 +199,13 @@ class ArrowView: NSView {
         
         guard isVisible else { return }
         
-        let adjustedX = mousePosition.x - screenOffset.x
-        let adjustedY = mousePosition.y - screenOffset.y
-        
         context.saveGState()
-        context.translateBy(x: adjustedX, y: adjustedY)
+        context.translateBy(x: mousePosition.x, y: mousePosition.y)
         context.scaleBy(x: scale, y: scale)
         
         let arrowPath = CGMutablePath()
         arrowPath.move(to: CGPoint(x: 0, y: 0))
         arrowPath.addLine(to: CGPoint(x: 0, y: -17))
-        arrowPath.addLine(to: CGPoint(x: 4, y: -13))
         arrowPath.addLine(to: CGPoint(x: 4, y: -13))
         arrowPath.addLine(to: CGPoint(x: 9, y: -22))
         arrowPath.addLine(to: CGPoint(x: 12, y: -20))
