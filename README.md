@@ -1,5 +1,7 @@
 # Big Arrow 🏹
 
+<video src="https://github.com/callumreid/bigCursor/raw/main/bigCursor.mp4" autoplay loop muted playsinline width="100%"></video>
+
 **Shake your mouse cursor and watch it grow HUGE!**
 
 The longer and faster you shake, the bigger it gets — until it fills your entire screen. Stop shaking and it smoothly shrinks back to normal.
