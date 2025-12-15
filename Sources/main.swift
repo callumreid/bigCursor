@@ -13,7 +13,7 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
     var targetScale: CGFloat = 1.0
     var isShaking: Bool = false
     var isGrowing: Bool = false
-    var displayLink: CVDisplayLink?
+    var cursorHidden: Bool = false
     var shakeStartTime: Date?
     var lastShakeTime: Date = Date()
     
@@ -30,15 +30,6 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
         setupOverlayWindow()
         startMouseTracking()
         startDisplayLink()
-        hideSystemCursor()
-    }
-    
-    func hideSystemCursor() {
-        CGDisplayHideCursor(CGMainDisplayID())
-        
-        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
-            CGDisplayHideCursor(CGMainDisplayID())
-        }
     }
     
     func setupStatusItem() {
@@ -55,15 +46,31 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
     }
     
     @objc func quitApp() {
-        CGDisplayShowCursor(CGMainDisplayID())
+        showSystemCursor()
         NSApplication.shared.terminate(nil)
     }
     
+    func hideSystemCursor() {
+        if !cursorHidden {
+            CGDisplayHideCursor(CGMainDisplayID())
+            cursorHidden = true
+        }
+    }
+    
+    func showSystemCursor() {
+        if cursorHidden {
+            CGDisplayShowCursor(CGMainDisplayID())
+            cursorHidden = false
+        }
+    }
+    
     func setupOverlayWindow() {
-        let screenFrame = NSScreen.main?.frame ?? NSRect(x: 0, y: 0, width: 1920, height: 1080)
+        let allScreensFrame = NSScreen.screens.reduce(NSRect.zero) { result, screen in
+            result.union(screen.frame)
+        }
         
         overlayWindow = NSWindow(
-            contentRect: screenFrame,
+            contentRect: allScreensFrame,
             styleMask: .borderless,
             backing: .buffered,
             defer: false
@@ -74,10 +81,12 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
         overlayWindow.isOpaque = false
         overlayWindow.hasShadow = false
         overlayWindow.ignoresMouseEvents = true
-        overlayWindow.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        overlayWindow.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
         
-        arrowView = ArrowView(frame: screenFrame)
+        arrowView = ArrowView(frame: NSRect(origin: .zero, size: allScreensFrame.size))
+        arrowView.screenOffset = allScreensFrame.origin
         overlayWindow.contentView = arrowView
+        overlayWindow.setFrame(allScreensFrame, display: true)
         overlayWindow.orderFrontRegardless()
     }
     
@@ -149,6 +158,8 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
     }
     
     func updateAnimation() {
+        let wasVisible = currentScale > minScale + 0.01
+        
         if isGrowing {
             currentScale = currentScale + (targetScale - currentScale) * 0.3
         } else {
@@ -156,9 +167,18 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
             targetScale = minScale
         }
         
+        let isVisible = currentScale > minScale + 0.01
+        
+        if isVisible && !wasVisible {
+            hideSystemCursor()
+        } else if !isVisible && wasVisible {
+            showSystemCursor()
+        }
+        
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.arrowView.scale = self.currentScale
+            self.arrowView.isVisible = isVisible
             self.arrowView.needsDisplay = true
         }
     }
@@ -167,6 +187,8 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
 class ArrowView: NSView {
     var mousePosition: CGPoint = .zero
     var scale: CGFloat = 1.0
+    var isVisible: Bool = false
+    var screenOffset: CGPoint = .zero
     
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
@@ -175,15 +197,19 @@ class ArrowView: NSView {
         
         context.clear(bounds)
         
-        let flippedY = mousePosition.y
+        guard isVisible else { return }
+        
+        let adjustedX = mousePosition.x - screenOffset.x
+        let adjustedY = mousePosition.y - screenOffset.y
         
         context.saveGState()
-        context.translateBy(x: mousePosition.x, y: flippedY)
+        context.translateBy(x: adjustedX, y: adjustedY)
         context.scaleBy(x: scale, y: scale)
         
         let arrowPath = CGMutablePath()
         arrowPath.move(to: CGPoint(x: 0, y: 0))
         arrowPath.addLine(to: CGPoint(x: 0, y: -17))
+        arrowPath.addLine(to: CGPoint(x: 4, y: -13))
         arrowPath.addLine(to: CGPoint(x: 4, y: -13))
         arrowPath.addLine(to: CGPoint(x: 9, y: -22))
         arrowPath.addLine(to: CGPoint(x: 12, y: -20))
@@ -214,4 +240,3 @@ let delegate = BigArrowApp()
 app.delegate = delegate
 app.setActivationPolicy(.accessory)
 app.run()
-
