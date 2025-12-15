@@ -3,8 +3,8 @@ import CoreGraphics
 
 class BigArrowApp: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem!
-    var overlayWindow: NSWindow!
-    var arrowView: ArrowView!
+    var overlayWindows: [NSWindow] = []
+    var arrowViews: [ArrowView] = []
     
     var lastMousePosition: CGPoint = .zero
     var lastMouseTime: Date = Date()
@@ -27,9 +27,25 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         setupStatusItem()
-        setupOverlayWindow()
+        setupOverlayWindows()
         startMouseTracking()
         startDisplayLink()
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(screensChanged),
+            name: NSApplication.didChangeScreenParametersNotification,
+            object: nil
+        )
+    }
+    
+    @objc func screensChanged() {
+        for window in overlayWindows {
+            window.orderOut(nil)
+        }
+        overlayWindows.removeAll()
+        arrowViews.removeAll()
+        setupOverlayWindows()
     }
     
     func setupStatusItem() {
@@ -64,29 +80,31 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
         }
     }
     
-    func setupOverlayWindow() {
-        let allScreensFrame = NSScreen.screens.reduce(NSRect.zero) { result, screen in
-            result.union(screen.frame)
+    func setupOverlayWindows() {
+        for screen in NSScreen.screens {
+            let window = NSWindow(
+                contentRect: screen.frame,
+                styleMask: .borderless,
+                backing: .buffered,
+                defer: false
+            )
+            
+            window.level = .screenSaver
+            window.backgroundColor = .clear
+            window.isOpaque = false
+            window.hasShadow = false
+            window.ignoresMouseEvents = true
+            window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
+            
+            let arrowView = ArrowView(frame: NSRect(origin: .zero, size: screen.frame.size))
+            arrowView.screenFrame = screen.frame
+            window.contentView = arrowView
+            window.setFrame(screen.frame, display: true)
+            window.orderFrontRegardless()
+            
+            overlayWindows.append(window)
+            arrowViews.append(arrowView)
         }
-        
-        overlayWindow = NSWindow(
-            contentRect: allScreensFrame,
-            styleMask: .borderless,
-            backing: .buffered,
-            defer: false
-        )
-        
-        overlayWindow.level = .screenSaver
-        overlayWindow.backgroundColor = .clear
-        overlayWindow.isOpaque = false
-        overlayWindow.hasShadow = false
-        overlayWindow.ignoresMouseEvents = true
-        overlayWindow.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
-        
-        arrowView = ArrowView(frame: NSRect(origin: .zero, size: allScreensFrame.size))
-        overlayWindow.contentView = arrowView
-        overlayWindow.setFrame(allScreensFrame, display: true)
-        overlayWindow.orderFrontRegardless()
     }
     
     func startMouseTracking() {
@@ -146,9 +164,10 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
         
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            let viewPoint = self.overlayWindow.convertFromScreen(NSRect(origin: currentPosition, size: .zero)).origin
-            self.arrowView.mousePosition = viewPoint
-            self.arrowView.needsDisplay = true
+            for arrowView in self.arrowViews {
+                arrowView.globalMousePosition = currentPosition
+                arrowView.needsDisplay = true
+            }
         }
     }
     
@@ -178,15 +197,18 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
         
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            self.arrowView.scale = self.currentScale
-            self.arrowView.isVisible = isVisible
-            self.arrowView.needsDisplay = true
+            for arrowView in self.arrowViews {
+                arrowView.scale = self.currentScale
+                arrowView.isVisible = isVisible
+                arrowView.needsDisplay = true
+            }
         }
     }
 }
 
 class ArrowView: NSView {
-    var mousePosition: CGPoint = .zero
+    var globalMousePosition: CGPoint = .zero
+    var screenFrame: NSRect = .zero
     var scale: CGFloat = 1.0
     var isVisible: Bool = false
     
@@ -199,8 +221,16 @@ class ArrowView: NSView {
         
         guard isVisible else { return }
         
+        let localX = globalMousePosition.x - screenFrame.origin.x
+        let localY = globalMousePosition.y - screenFrame.origin.y
+        
+        let isOnThisScreen = localX >= 0 && localX <= screenFrame.width &&
+                             localY >= 0 && localY <= screenFrame.height
+        
+        guard isOnThisScreen else { return }
+        
         context.saveGState()
-        context.translateBy(x: mousePosition.x, y: mousePosition.y)
+        context.translateBy(x: localX, y: localY)
         context.scaleBy(x: scale, y: scale)
         
         let arrowPath = CGMutablePath()
