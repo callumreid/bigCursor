@@ -12,8 +12,9 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
     var currentScale: CGFloat = 1.0
     var targetScale: CGFloat = 1.0
     var isShaking: Bool = false
+    var isGrowing: Bool = false
     var displayLink: CVDisplayLink?
-    var shakingDuration: TimeInterval = 0
+    var shakeStartTime: Date?
     var lastShakeTime: Date = Date()
     
     let velocityThreshold: CGFloat = 800
@@ -22,6 +23,7 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
     let shrinkRate: CGFloat = 0.92
     let minScale: CGFloat = 1.0
     let maxScale: CGFloat = 50.0
+    let warmupDuration: TimeInterval = 1.5
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         setupStatusItem()
@@ -97,18 +99,24 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
             if avgVelocity > velocityThreshold {
                 if !isShaking {
                     isShaking = true
-                    shakingDuration = 0
+                    shakeStartTime = currentTime
                 }
                 lastShakeTime = currentTime
-                shakingDuration += timeDelta
                 
-                let velocityMultiplier = min(avgVelocity / velocityThreshold, 5.0)
-                let durationMultiplier = 1.0 + CGFloat(shakingDuration) * 0.5
-                targetScale = min(currentScale + growthRate * velocityMultiplier * durationMultiplier, maxScale)
+                let shakingDuration = currentTime.timeIntervalSince(shakeStartTime ?? currentTime)
+                
+                if shakingDuration >= warmupDuration {
+                    isGrowing = true
+                    let velocityMultiplier = min(avgVelocity / velocityThreshold, 5.0)
+                    let growthDuration = shakingDuration - warmupDuration
+                    let durationMultiplier = 1.0 + CGFloat(growthDuration) * 0.5
+                    targetScale = min(currentScale + growthRate * velocityMultiplier * durationMultiplier, maxScale)
+                }
             } else {
                 if isShaking && currentTime.timeIntervalSince(lastShakeTime) > 0.1 {
                     isShaking = false
-                    shakingDuration = 0
+                    isGrowing = false
+                    shakeStartTime = nil
                 }
             }
         }
@@ -129,7 +137,7 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
     }
     
     func updateAnimation() {
-        if isShaking {
+        if isGrowing {
             currentScale = currentScale + (targetScale - currentScale) * 0.3
         } else {
             currentScale = max(currentScale * shrinkRate, minScale)
