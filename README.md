@@ -1,6 +1,6 @@
-# Big Arrow 🏹
+# bigCursor 🖱️
 
-![Big Arrow Demo](bigCursor.gif)
+![bigCursor Demo](bigCursor.gif)
 
 **Shake your mouse cursor and watch it grow HUGE!**
 
@@ -10,17 +10,17 @@ The longer and faster you shake, the bigger it gets — until it fills your enti
 
 ## Download
 
-**[⬇️ Download Big Arrow](../../releases/latest)** (macOS 13+)
+**[⬇️ Download bigCursor](../../releases/latest)** (macOS 13+)
 
 ### Installation
 
-1. Download `BigArrow.dmg` from the link above
-2. Open the DMG and drag **Big Arrow** to your Applications folder
+1. Download `bigCursor.dmg` from the link above
+2. Open the DMG and drag **bigCursor** to your Applications folder
 3. **First time only:** Right-click the app → **Open** (this bypasses macOS security for unsigned apps)
 4. Click **Open** when prompted
 5. Grant **Accessibility** permissions when asked (System Settings → Privacy & Security → Accessibility)
 
-That's it! Look for the 🏹 in your menu bar.
+That's it! Look for the 🖱️ in your menu bar.
 
 ---
 
@@ -33,12 +33,14 @@ That's it! Look for the 🏹 in your menu bar.
 
 The faster you shake, the faster it grows. Max size fills most of your screen!
 
+**Toggle Light/Dark Mode:** Click the 🖱️ menu bar icon to switch between a black cursor (dark mode) and white cursor (light mode).
+
 ---
 
 ## Quit / Uninstall
 
-- **Quit:** Click the 🏹 menu bar icon → Quit
-- **Uninstall:** Drag Big Arrow from Applications to Trash
+- **Quit:** Right-click the 🖱️ menu bar icon → Quit
+- **Uninstall:** Drag bigCursor from Applications to Trash
 
 ---
 
@@ -47,10 +49,10 @@ The faster you shake, the faster it grows. Max size fills most of your screen!
 ### Build from Source
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/BigArrow.git
-cd BigArrow
+git clone https://github.com/YOUR_USERNAME/bigCursor.git
+cd bigCursor
 swift build -c release
-.build/release/BigArrow
+.build/release/bigCursor
 ```
 
 ### Create Distributable App
@@ -61,8 +63,8 @@ chmod +x build-app.sh
 ```
 
 This creates:
-- `Big Arrow.app` — the macOS application
-- `BigArrow.dmg` — disk image for easy sharing
+- `bigCursor.app` — the macOS application
+- `bigCursor.dmg` — disk image for easy sharing
 
 ---
 
@@ -70,9 +72,10 @@ This creates:
 
 - Tracks mouse velocity over a sliding window
 - Requires 1.5 seconds of sustained rapid movement before growth begins
-- Arrow grows up to 500x normal size
+- Cursor grows up to 500x normal size
 - Works across multiple displays
 - Runs as a menu bar app (no Dock icon)
+- Click menu bar icon to toggle light/dark mode
 
 ## Requirements
 

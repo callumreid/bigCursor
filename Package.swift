@@ -2,13 +2,13 @@
 import PackageDescription
 
 let package = Package(
-    name: "BigArrow",
+    name: "bigCursor",
     platforms: [
         .macOS(.v13)
     ],
     targets: [
         .executableTarget(
-            name: "BigArrow",
+            name: "bigCursor",
             path: "Sources"
         )
     ]

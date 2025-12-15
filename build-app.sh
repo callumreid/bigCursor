@@ -1,11 +1,11 @@
 #!/bin/bash
 set -e
 
-APP_NAME="Big Arrow"
-BUNDLE_ID="com.bigarrow.app"
-VERSION="1.0.0"
+APP_NAME="bigCursor"
+BUNDLE_ID="com.bigcursor.app"
+VERSION="1.1.0"
 
-echo "🏹 Building Big Arrow..."
+echo "🖱️ Building bigCursor..."
 
 swift build -c release
 
@@ -15,7 +15,7 @@ rm -rf "$APP_NAME.app"
 mkdir -p "$APP_NAME.app/Contents/MacOS"
 mkdir -p "$APP_NAME.app/Contents/Resources"
 
-cp .build/release/BigArrow "$APP_NAME.app/Contents/MacOS/"
+cp .build/release/bigCursor "$APP_NAME.app/Contents/MacOS/bigCursor"
 
 cat > "$APP_NAME.app/Contents/Info.plist" << EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -23,7 +23,7 @@ cat > "$APP_NAME.app/Contents/Info.plist" << EOF
 <plist version="1.0">
 <dict>
     <key>CFBundleExecutable</key>
-    <string>BigArrow</string>
+    <string>bigCursor</string>
     <key>CFBundleIdentifier</key>
     <string>${BUNDLE_ID}</string>
     <key>CFBundleName</key>
@@ -89,16 +89,16 @@ rm -rf "$ICON_DIR"
 
 echo "📀 Creating DMG..."
 
-rm -f "BigArrow.dmg"
-hdiutil create -volname "Big Arrow" -srcfolder "$APP_NAME.app" -ov -format UDZO "BigArrow.dmg" 2>/dev/null || {
+rm -f "bigCursor.dmg"
+hdiutil create -volname "bigCursor" -srcfolder "$APP_NAME.app" -ov -format UDZO "bigCursor.dmg" 2>/dev/null || {
     echo "⚠️  DMG creation failed (that's okay, .app still works)"
 }
 
 echo ""
 echo "✅ Done! Created:"
 echo "   📁 $APP_NAME.app - Double-click to run"
-if [ -f "BigArrow.dmg" ]; then
-    echo "   💿 BigArrow.dmg - Share this file with others"
+if [ -f "bigCursor.dmg" ]; then
+    echo "   💿 bigCursor.dmg - Share this file with others"
 fi
 echo ""
 echo "📝 First-time users need to:"

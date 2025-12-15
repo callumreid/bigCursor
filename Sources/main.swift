@@ -1,10 +1,10 @@
 import Cocoa
 import CoreGraphics
 
-class BigArrowApp: NSObject, NSApplicationDelegate {
+class BigCursorApp: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem!
     var overlayWindows: [NSWindow] = []
-    var arrowViews: [ArrowView] = []
+    var cursorViews: [CursorView] = []
     
     var lastMousePosition: CGPoint = .zero
     var lastMouseTime: Date = Date()
@@ -16,6 +16,7 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
     var cursorHidden: Bool = false
     var shakeStartTime: Date?
     var lastShakeTime: Date = Date()
+    var isDarkMode: Bool = true
     
     let velocityThreshold: CGFloat = 800
     let maxHistorySize = 10
@@ -44,21 +45,43 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
             window.orderOut(nil)
         }
         overlayWindows.removeAll()
-        arrowViews.removeAll()
+        cursorViews.removeAll()
         setupOverlayWindows()
     }
     
     func setupStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = statusItem.button {
-            button.title = "🏹"
+            button.title = "🖱️"
+            button.action = #selector(statusItemClicked)
+            button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+            button.target = self
         }
+    }
+    
+    @objc func statusItemClicked(_ sender: NSStatusBarButton) {
+        let event = NSApp.currentEvent!
         
-        let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "Big Arrow Active", action: nil, keyEquivalent: ""))
-        menu.addItem(NSMenuItem.separator())
-        menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q"))
-        statusItem.menu = menu
+        if event.type == .rightMouseUp {
+            let menu = NSMenu()
+            let modeTitle = isDarkMode ? "Mode: Dark (click icon to toggle)" : "Mode: Light (click icon to toggle)"
+            menu.addItem(NSMenuItem(title: modeTitle, action: nil, keyEquivalent: ""))
+            menu.addItem(NSMenuItem.separator())
+            menu.addItem(NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q"))
+            statusItem.menu = menu
+            statusItem.button?.performClick(nil)
+            statusItem.menu = nil
+        } else {
+            toggleMode()
+        }
+    }
+    
+    @objc func toggleMode() {
+        isDarkMode.toggle()
+        for cursorView in cursorViews {
+            cursorView.isDarkMode = isDarkMode
+            cursorView.needsDisplay = true
+        }
     }
     
     @objc func quitApp() {
@@ -96,14 +119,14 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
             window.ignoresMouseEvents = true
             window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
             
-            let arrowView = ArrowView(frame: NSRect(origin: .zero, size: screen.frame.size))
-            arrowView.screenFrame = screen.frame
-            window.contentView = arrowView
+            let cursorView = CursorView(frame: NSRect(origin: .zero, size: screen.frame.size))
+            cursorView.screenFrame = screen.frame
+            window.contentView = cursorView
             window.setFrame(screen.frame, display: true)
             window.orderFrontRegardless()
             
             overlayWindows.append(window)
-            arrowViews.append(arrowView)
+            cursorViews.append(cursorView)
         }
     }
     
@@ -164,9 +187,9 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
         
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            for arrowView in self.arrowViews {
-                arrowView.globalMousePosition = currentPosition
-                arrowView.needsDisplay = true
+            for cursorView in self.cursorViews {
+                cursorView.globalMousePosition = currentPosition
+                cursorView.needsDisplay = true
             }
         }
     }
@@ -197,20 +220,21 @@ class BigArrowApp: NSObject, NSApplicationDelegate {
         
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            for arrowView in self.arrowViews {
-                arrowView.scale = self.currentScale
-                arrowView.isVisible = isVisible
-                arrowView.needsDisplay = true
+            for cursorView in self.cursorViews {
+                cursorView.scale = self.currentScale
+                cursorView.isVisible = isVisible
+                cursorView.needsDisplay = true
             }
         }
     }
 }
 
-class ArrowView: NSView {
+class CursorView: NSView {
     var globalMousePosition: CGPoint = .zero
     var screenFrame: NSRect = .zero
     var scale: CGFloat = 1.0
     var isVisible: Bool = false
+    var isDarkMode: Bool = true
     
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
@@ -233,23 +257,26 @@ class ArrowView: NSView {
         context.translateBy(x: localX, y: localY)
         context.scaleBy(x: scale, y: scale)
         
-        let arrowPath = CGMutablePath()
-        arrowPath.move(to: CGPoint(x: 0, y: 0))
-        arrowPath.addLine(to: CGPoint(x: 0, y: -17))
-        arrowPath.addLine(to: CGPoint(x: 4, y: -13))
-        arrowPath.addLine(to: CGPoint(x: 9, y: -22))
-        arrowPath.addLine(to: CGPoint(x: 12, y: -20))
-        arrowPath.addLine(to: CGPoint(x: 7, y: -11))
-        arrowPath.addLine(to: CGPoint(x: 12, y: -11))
-        arrowPath.closeSubpath()
+        let cursorPath = CGMutablePath()
+        cursorPath.move(to: CGPoint(x: 0, y: 0))
+        cursorPath.addLine(to: CGPoint(x: 0, y: -17))
+        cursorPath.addLine(to: CGPoint(x: 4, y: -13))
+        cursorPath.addLine(to: CGPoint(x: 9, y: -22))
+        cursorPath.addLine(to: CGPoint(x: 12, y: -20))
+        cursorPath.addLine(to: CGPoint(x: 7, y: -11))
+        cursorPath.addLine(to: CGPoint(x: 12, y: -11))
+        cursorPath.closeSubpath()
+        
+        let fillColor = isDarkMode ? NSColor.black.cgColor : NSColor.white.cgColor
+        let strokeColor = isDarkMode ? NSColor.white.cgColor : NSColor.black.cgColor
         
         context.setLineWidth(2.0 / scale * 2)
-        context.addPath(arrowPath)
-        context.setStrokeColor(NSColor.white.cgColor)
+        context.addPath(cursorPath)
+        context.setStrokeColor(strokeColor)
         context.strokePath()
         
-        context.addPath(arrowPath)
-        context.setFillColor(NSColor.black.cgColor)
+        context.addPath(cursorPath)
+        context.setFillColor(fillColor)
         context.fillPath()
         
         context.restoreGState()
@@ -257,7 +284,7 @@ class ArrowView: NSView {
 }
 
 let app = NSApplication.shared
-let delegate = BigArrowApp()
+let delegate = BigCursorApp()
 app.delegate = delegate
 app.setActivationPolicy(.accessory)
 app.run()
