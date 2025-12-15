@@ -243,19 +243,14 @@ class ArrowView: NSView {
         arrowPath.addLine(to: CGPoint(x: 12, y: -11))
         arrowPath.closeSubpath()
         
-        context.setLineWidth(1.5 / scale * 2)
+        context.setLineWidth(2.0 / scale * 2)
         context.addPath(arrowPath)
-        context.setStrokeColor(NSColor.black.cgColor)
+        context.setStrokeColor(NSColor.white.cgColor)
         context.strokePath()
         
         context.addPath(arrowPath)
-        context.setFillColor(NSColor.white.cgColor)
+        context.setFillColor(NSColor.black.cgColor)
         context.fillPath()
-        
-        context.setLineWidth(0.5)
-        context.addPath(arrowPath)
-        context.setStrokeColor(NSColor.black.cgColor)
-        context.strokePath()
         
         context.restoreGState()
     }
