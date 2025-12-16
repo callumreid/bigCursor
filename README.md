@@ -12,6 +12,13 @@ The longer and faster you shake, the bigger it gets — until it fills your enti
 
 **[⬇️ Download bigCursor](../../releases/latest)** (macOS 13+)
 
+### Homebrew (recommended)
+
+```bash
+brew tap callumreid/bigCursor https://github.com/callumreid/bigCursor
+brew install --cask bigcursor
+```
+
 ### Installation
 
 1. Download `bigCursor.dmg` from the link above
@@ -53,7 +60,7 @@ The faster you shake, the faster it grows. Max size fills most of your screen!
 ### Build from Source
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/bigCursor.git
+git clone https://github.com/callumreid/bigCursor.git
 cd bigCursor
 swift build -c release
 .build/release/bigCursor
