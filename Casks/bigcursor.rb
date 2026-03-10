@@ -1,6 +1,6 @@
 cask "bigcursor" do
   version "1.2.0"
-  sha256 :no_check
+  sha256 "b8a88f959b5f6067ec346a77647293a4c1b42d5907efe2ee34ff853ec6b65423"
 
   url "https://github.com/callumreid/bigCursor/releases/download/v#{version}/bigCursor.dmg"
   name "bigCursor"
