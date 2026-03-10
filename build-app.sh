@@ -3,7 +3,7 @@ set -e
 
 APP_NAME="bigCursor"
 BUNDLE_ID="com.bigcursor.app"
-VERSION="1.1.0"
+VERSION="${VERSION:-1.2.0}"
 
 echo "🖱️ Building bigCursor..."
 
@@ -114,4 +114,3 @@ echo ""
 echo "📝 First-time users need to:"
 echo "   1. Right-click the app → Open (to bypass Gatekeeper)"
 echo "   2. Grant Accessibility permissions when prompted"
-

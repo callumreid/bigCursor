@@ -1,6 +1,6 @@
 cask "bigcursor" do
-  version "1.1.0"
-  sha256 "b8947ee1554e9c9f8798115bd8c631229ee4148f183a865a4d278c9782a3449d"
+  version "1.2.0"
+  sha256 :no_check
 
   url "https://github.com/callumreid/bigCursor/releases/download/v#{version}/bigCursor.dmg"
   name "bigCursor"
@@ -22,4 +22,3 @@ cask "bigcursor" do
     EOS
   end
 end
-

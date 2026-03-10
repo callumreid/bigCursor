@@ -2,9 +2,9 @@
 
 ![bigCursor Demo](bigCursor.gif)
 
-**Shake your mouse cursor and watch it grow HUGE!**
+**Shake your mouse cursor and watch it grow HUGE, then split into a swarm!**
 
-The longer and faster you shake, the bigger it gets — until it fills your entire screen. Stop shaking and it smoothly shrinks back to normal.
+The longer and faster you shake, the bigger it gets. Shake even harder and extra cursors burst out from the primary cursor, track along with it, and fade back away when the motion settles.
 
 ---
 
@@ -39,10 +39,11 @@ That's it! Look for the 🖱️ in your menu bar.
 
 1. **Shake your mouse rapidly** for about 1.5 seconds
 2. Watch your cursor start growing!
-3. **Keep shaking** — it keeps growing bigger and bigger
-4. **Stop shaking** — it smoothly shrinks back to normal
+3. **Shake harder** to spawn extra cursors that shoot out from the primary cursor
+4. **Keep shaking** to make the whole cursor swarm grow bigger and bigger
+5. **Stop shaking** and the extra cursors fade out while the primary cursor smoothly shrinks back to normal
 
-The faster you shake, the faster it grows. Max size fills most of your screen!
+Moderately fast shaking grows the cursor. Extra-fast shaking multiplies it. Max size fills most of your screen.
 
 **Toggle Light/Dark Mode:** Click the 🖱️ menu bar icon to switch between a black cursor (dark mode) and white cursor (light mode).
 
@@ -83,6 +84,7 @@ This creates:
 
 - Tracks mouse velocity over a sliding window
 - Requires 1.5 seconds of sustained rapid movement before growth begins
+- Very fast movement spawns additional cursors with no fixed cap
 - Cursor grows up to 500x normal size
 - Works across multiple displays
 - Runs as a menu bar app (no Dock icon)
